@@ -358,13 +358,21 @@ def text_class():
     
     if selection_sex == 'неизвестно':
         xml = textClass.replace('\n    <catRef ana="#Вставить идентификатор пола или пропустить"></catRef>', '')
-    else:
+    elif selection_sex == 'M':
         xml = textClass.replace('Вставить идентификатор пола или пропустить', selection_sex)
+    elif selection_sex == 'F':
+        xml = textClass.replace('Вставить идентификатор пола или пропустить', selection_sex)
+    else:
+        xml = textClass.replace('\n    <catRef ana="#Вставить идентификатор пола или пропустить"></catRef>', '')
         
     if selection_narr == 'неизвестно':
         xml = xml.replace('\n    <catRef ana="#Вставить идентификатор наррации или пропустить"></catRef>', '')
-    else:
+    elif selection_narr == 'narr1':
         xml = xml.replace('Вставить идентификатор наррации или пропустить', selection_narr)
+    elif selection_narr == 'narr3':
+        xml = xml.replace('Вставить идентификатор наррации или пропустить', selection_narr)
+    else:
+        xml = xml.replace('\n    <catRef ana="#Вставить идентификатор наррации или пропустить"></catRef>', '')
     return xml
 
 
