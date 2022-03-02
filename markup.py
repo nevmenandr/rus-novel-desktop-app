@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import tkinter as tk
+import os
 import re
+import tkinter as tk
 
 
 HEAD1 = '''<?xml version='1.0' encoding='utf-8'?>
@@ -180,7 +181,7 @@ selection_sex = SEX[0]
 selection_narr = NARRATION[0]
 
 def check_main(name, fname, title, markup_name, biblio_name, biblio_title,
-        biblio_year, text):
+        biblio_year, input_filename):
     empty_fields = []
     if not name:
         empty_fields.append('Фамилия автора')
@@ -200,8 +201,8 @@ def check_main(name, fname, title, markup_name, biblio_name, biblio_title,
         empty_fields.append('Год (в библиографическом описании)')
     elif not re.search('1[789][0-9]{2}', biblio_year):
         empty_fields.append('Год (в библиографическом описании) в формате YYYY, например, 1875')
-    if not text:
-        empty_fields.append('Вы не ввели текст романа')
+    if not input_filename:
+        empty_fields.append('Имя файла с текстом романа')
     return empty_fields
 
 
@@ -256,11 +257,10 @@ def change_narration(select):
     selection_narr = select
 
 
-def errors_display(empty_fields):
-    errors = 'Вы не заполнили следующие обязательные поля: \n\n' + ',\n'.join(empty_fields)
+def errors_display(title, message):
     window = tk.Tk()
-    window.title('Ошибки разметки')
-    errors = tk.Label(window, text=errors)
+    window.title(title)
+    errors = tk.Label(window, text=message)
     errors.pack()
     window.mainloop()
 
@@ -376,9 +376,31 @@ def text_class():
     return xml
 
 
+def text_process(input_filename):
+    if not os.path.exists(input_filename):
+        errors_display('Ошибка файла', '\n\nФайла с таким именем в этой директории нет\n\n')
+    else:
+        try:
+            with open(input_filename, encoding='utf-8') as f:
+                text = f.read()
+        except:
+            text = ''
+        if not text:
+            try:
+                with open(input_filename, encoding='cp1251') as f:
+                    text = f.read()
+            except:
+                text = ''
+        if not text:
+            errors_display('Ошибка файла', '\n\nФайл должен быть в формате txt и кодировке UTF-8\n\n')
+        else:
+            text = text.replace('&', '&amp;')
+            return text
+    
+
 def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
             biblio_title, biblio_sub, biblio_year, biblio_place, edit,
-            journal, number, biblio_cname, year_creation, text,
+            journal, number, biblio_cname, year_creation, input_filename,
             current_year, current_month, current_day):
     head1 = HEAD1.replace('Вставить_идентификатор', id)
     head1 = head1.replace('Вписать название романа', title)
@@ -412,7 +434,7 @@ def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
     else:
         head6 = ''
     
-    text = text.replace('&', '&amp;')
+    text = text_process(input_filename)
     
     head8 = HEAD8.replace('РАЗМЕТЧИК', markup_name)
     head8 = head8.replace('YEAR', str(current_year))
@@ -421,23 +443,15 @@ def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
     head8 = head8.replace('Текст', text)
     
     return '{}{}{}{}{}{}{}{}'.format(head1, head2, HEAD3, head4, head5, head6, HEAD7, head8)
-
-
-def result_display(id):
-    window = tk.Tk()
-    window.title('Результат')
-    errors = tk.Label(window, text='Результат сохранен \nв файл {}.xml'.format(id))
-    errors.pack()
-    window.mainloop()
     
 
 def collect_data(name, fname, pname, title, markup_name, biblio_name,
         biblio_title, biblio_sub, biblio_year, biblio_place, edit,
-        journal, number, biblio_cname, year_creation, text, current_year,
+        journal, number, biblio_cname, year_creation, input_filename, current_year,
         current_month, current_day):
     
     empty_fields = check_main(name, fname, title, markup_name, biblio_name,
-        biblio_title, biblio_year, text)
+        biblio_title, biblio_year, input_filename)
     
     if selection == "Журнал":
         empty_fields.extend(check_journal(journal, number))
@@ -447,18 +461,18 @@ def collect_data(name, fname, pname, title, markup_name, biblio_name,
         empty_fields.extend(check_book(biblio_place, edit))
     
     if empty_fields:
-        errors_display(empty_fields)
+        errors_display('Ошибки разметки', '\n\nВы не заполнили следующие обязательные поля: \n\n' + ',\n'.join(empty_fields))
     else:
         id = id_maker(name, fname, title, biblio_year)
         xml = xml_former(id, title, name, fname, pname, markup_name,
             biblio_name, biblio_title, biblio_sub, biblio_year, biblio_place,
-            edit, journal, number, biblio_cname, year_creation, text,
+            edit, journal, number, biblio_cname, year_creation, input_filename,
             current_year, current_month, current_day)
     
     with open('{}.xml'.format(id), "w", encoding='utf-8') as output_file:
         output_file.write(xml)
     
-    result_display(id)
+    errors_display('Результат', 'Результат сохранен \nв файл {}.xml'.format(id))
 
 
 def main():
@@ -578,41 +592,47 @@ def main():
     entry_year_creation = tk.Entry(root) 
     entry_year_creation.place(x=150, y=690) 
     
-    label_text_box = tk.Label(root, text='Скопируйте текст романа в поле ниже:')
+    label_text_box = tk.Label(root, text='Введите имя файла, из которого \
+нужно взять текст романа. \nФайл должен быть в формате .txt и лежать \
+в той же папке, что и эта программа.\nБудьте внимательны, файловые \
+менеджеры часто скрывают расширение файла, \nно его всё равно нужно указать')
     label_text_box.place(x=400, y=10)
     
-    text_box = tk.Text()
-    text_box.place(x=400, y=40) 
+    entry_input = tk.Entry(root) 
+    entry_input.place(x=500, y=110) 
+    
+    # text_box = tk.Text()
+    # text_box.place(x=400, y=40) 
     
     
     label_type = tk.Label(root, text = "Месяц (для журнала и сборника)")
-    label_type.place(x=400, y=470)
+    label_type.place(x=400, y=270)
     
     selection_month = tk.StringVar(root)
     selection_month.set(MONTHS[0])
     
     opt_month = tk.OptionMenu(root, selection_month, *MONTHS, command=change_month)
-    opt_month.place(x=650, y=470)
+    opt_month.place(x=650, y=270)
     
     
     label_sex = tk.Label(root, text = "Пол автора")
-    label_sex.place(x=400, y=520)
+    label_sex.place(x=400, y=320)
     
     selection_sex = tk.StringVar(root)
     selection_sex.set(SEX[0])
     
     opt_sex = tk.OptionMenu(root, selection_sex, *SEX, command=change_sex)
-    opt_sex.place(x=650, y=520)
+    opt_sex.place(x=650, y=320)
     
     
     label_narr = tk.Label(root, text = "Повествование (от 1 или 3 лица)")
-    label_narr.place(x=400, y=570)
+    label_narr.place(x=400, y=370)
     
     selection_narr = tk.StringVar(root)
     selection_narr.set(NARRATION[0])
     
     opt_narr = tk.OptionMenu(root, selection_narr, *NARRATION, command=change_narration)
-    opt_narr.place(x=650, y=570)
+    opt_narr.place(x=650, y=370)
     
     
     canvas.pack() # заставляет работать canvas
@@ -628,9 +648,9 @@ def main():
         entry_year_biblio.get().strip(), entry_place_biblio.get().strip(),
         entry_edit_biblio.get().strip(), entry_journal_biblio.get().strip(),
         entry_number_biblio.get().strip(), entry_cname_biblio.get().strip(),
-        entry_year_creation.get().strip(), text_box.get("1.0", tk.END).strip(),
+        entry_year_creation.get().strip(), entry_input.get().strip(),
         current_datetime.year, current_datetime.month, current_datetime.day)) # получаем значение 
-    btn_calc.place(x=800, y=650)
+    btn_calc.place(x=800, y=550)
     
     root.mainloop() # открывает окно
     
