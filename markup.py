@@ -11,7 +11,7 @@ HEAD1 = '''<?xml version='1.0' encoding='utf-8'?>
  <teiHeader>
   <fileDesc>
    <titleStmt>
-    <title xml:id="Вставить_идентификатор">#Вписать название романа. Электронная версия</title>
+    <title xml:id="Вставить_идентификатор">Вписать название романа. Электронная версия</title>
      <author>
        <persName>
          <forename>Имя автора</forename>
@@ -136,8 +136,8 @@ profileDesc = '''
 
 textClass = '''
     <textClass>
-    <catRef ana="#Вставить идентификатор пола или пропустить"></catRef>
-    <catRef ana="#Вставить идентификатор наррации или пропустить"></catRef>
+    <catRef ana="Вставить идентификатор пола или пропустить"></catRef>
+    <catRef ana="Вставить идентификатор наррации или пропустить"></catRef>
    </textClass>
 '''
 
@@ -145,7 +145,7 @@ HEAD7 = '  </profileDesc>'
 
 HEAD8 = '''
   <revisionDesc>
-    <change when="#DD_MM_YEAR">Оформление в XML-формате, РАЗМЕТЧИК</change>
+    <change when="YEAR-MM-DD">Оформление в XML-формате, РАЗМЕТЧИК</change>
   </revisionDesc> 
  </teiHeader>
  <text>
@@ -199,7 +199,7 @@ def check_main(name, fname, title, markup_name, biblio_name, biblio_title,
     if not biblio_year:
         empty_fields.append('Год (в библиографическом описании)')
     elif not re.search('1[789][0-9]{2}', biblio_year):
-        empty_fields.append('Год (в библиографическом описании) в формате 1MMM, например, 1875')
+        empty_fields.append('Год (в библиографическом описании) в формате YYYY, например, 1875')
     if not text:
         empty_fields.append('Вы не ввели текст романа')
     return empty_fields
@@ -357,22 +357,22 @@ def text_class():
     selection_narr = str(selection_narr)
     
     if selection_sex == 'неизвестно':
-        xml = textClass.replace('\n    <catRef ana="#Вставить идентификатор пола или пропустить"></catRef>', '')
+        xml = textClass.replace('\n    <catRef ana="Вставить идентификатор пола или пропустить"></catRef>', '')
     elif selection_sex == 'M':
         xml = textClass.replace('Вставить идентификатор пола или пропустить', selection_sex)
     elif selection_sex == 'F':
         xml = textClass.replace('Вставить идентификатор пола или пропустить', selection_sex)
     else:
-        xml = textClass.replace('\n    <catRef ana="#Вставить идентификатор пола или пропустить"></catRef>', '')
+        xml = textClass.replace('\n    <catRef ana="Вставить идентификатор пола или пропустить"></catRef>', '')
         
     if selection_narr == 'неизвестно':
-        xml = xml.replace('\n    <catRef ana="#Вставить идентификатор наррации или пропустить"></catRef>', '')
+        xml = xml.replace('\n    <catRef ana="Вставить идентификатор наррации или пропустить"></catRef>', '')
     elif selection_narr == 'narr1':
         xml = xml.replace('Вставить идентификатор наррации или пропустить', selection_narr)
     elif selection_narr == 'narr3':
         xml = xml.replace('Вставить идентификатор наррации или пропустить', selection_narr)
     else:
-        xml = xml.replace('\n    <catRef ana="#Вставить идентификатор наррации или пропустить"></catRef>', '')
+        xml = xml.replace('\n    <catRef ana="Вставить идентификатор наррации или пропустить"></catRef>', '')
     return xml
 
 
@@ -381,7 +381,7 @@ def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
             journal, number, biblio_cname, year_creation, text,
             current_year, current_month, current_day):
     head1 = HEAD1.replace('Вставить_идентификатор', id)
-    head1 = head1.replace('#Вписать название романа', title)
+    head1 = head1.replace('Вписать название романа', title)
     head1 = head1.replace('Фамилия автора', name)
     head1 = head1.replace('Имя автора', fname)
     if pname:
@@ -455,7 +455,7 @@ def collect_data(name, fname, pname, title, markup_name, biblio_name,
             edit, journal, number, biblio_cname, year_creation, text,
             current_year, current_month, current_day)
     
-    with open('{}.xml'.format(id), "w") as output_file:
+    with open('{}.xml'.format(id), "w", encoding='utf-8') as output_file:
         output_file.write(xml)
     
     result_display(id)

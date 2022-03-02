@@ -55,7 +55,7 @@
       <title type="main">Холстомер</title>
         <title type="sub">История лошади</title>
        <pubPlace>Москва</pubPlace>
-       <publisher>Художественная литература</publisher>
+       <publisher>Синодальная типография</publisher>
        <date when="1886" />
     </bibl>
    </sourceDesc>
@@ -71,22 +71,22 @@
   </encodingDesc>
   <profileDesc>
    <creation>
-    <date when="1886">1886</date>
+    <date when="1863-1886">1863-1886</date>
     <rs type="country">
      Россия
     </rs>
    </creation>
     <textClass>
-    <catRef ana="#M"></catRef>
+    <catRef ana="M"></catRef>
    </textClass>
   </profileDesc>
   <revisionDesc>
-    <change when="#01_03_2022">Оформление в XML-формате, Борис Орехов</change>
+    <change when="2022-03-02">Оформление в XML-формате, Борис Орехов</change>
   </revisionDesc> 
  </teiHeader>
  <text>
    <body>
-     <p>Посвящается памяти М. А. Стаховича
+     <p>Посвящается памяти М. А. Стаховича 1
 
 ГЛАВА I
 Все выше и выше поднималось небо, шире расплывалась заря, белее становилось матовое серебро росы, безжизненнее становился серп месяца, звучнее — лес, люди начинали подниматься, и на барском конном дворе чаще и чаще слышалось фырканье, возня по соломе и даже сердитое визгливое ржанье столпившихся и повздоривших за что-то лошадей.
