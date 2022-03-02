@@ -472,7 +472,7 @@ def collect_data(name, fname, pname, title, markup_name, biblio_name,
     with open('{}.xml'.format(id), "w", encoding='utf-8') as output_file:
         output_file.write(xml)
     
-    errors_display('Результат', 'Результат сохранен \nв файл {}.xml'.format(id))
+    errors_display('Результат', '\n\nРезультат сохранен \nв файл {}.xml\n\n'.format(id))
 
 
 def main():
