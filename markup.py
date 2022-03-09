@@ -13,6 +13,7 @@ HEAD1 = '''<?xml version='1.0' encoding='utf-8'?>
   <fileDesc>
    <titleStmt>
     <title xml:id="Вставить_идентификатор">Вписать название романа. Электронная версия</title>
+    <title type="sub">Вписать подзаголовок</title>
      <author>
        <persName>
          <forename>Имя автора</forename>
@@ -77,19 +78,7 @@ HEAD_JOURNAL = '''     <bibl>
        <title type="sub">Вставить субтитл</title>
        <title level="j">Вставить название журнала</title>
       <biblScope unit="volume">Вставить номер журнала</biblScope>
-       <date when="(вставить год и месяц (YEAR_ММ))" />
-     </bibl>
-'''
-
-HEAD_COLLECT = '''     <bibl>
-       <author>Вставить имя автора романа</author>
-       <title type="main" level="a">Вставить название романа</title>
-       <title type="sub">Вставить субтитл</title>
-       <title level="s">Вставить название сборника</title>
-       <pubPlace>Вставить город публикации сборника</pubPlace>
-       <publisher>Вставить название издательства (Например: Государственное издательство "Художественная литература")</publisher>
-       <date when="(вставить год и месяц (YEAR_ММ))"/>
-     <pubPlace>Вставить город публикации</pubPlace>
+       <date when="(вставить год и месяц (YEAR))" />
      </bibl>
 '''
 
@@ -165,8 +154,7 @@ def months_former(d):
 
 PUBL_TYPE = [
     "Отдельная книга",
-    "Журнал",
-    "Периодический сборник"
+    "Журнал"
 ] 
 
 MONTHS = [months_former(x) for x in range(13)]
@@ -206,12 +194,10 @@ def check_main(name, fname, title, markup_name, biblio_name, biblio_title,
     return empty_fields
 
 
-def check_book(biblio_place, edit):
+def check_book(biblio_place):
     empty_fields = []
     if not biblio_place:
         empty_fields.append('Место издания книги')
-    if not edit:
-        empty_fields.append('Издательство книги')
     return empty_fields
 
 
@@ -223,17 +209,6 @@ def check_journal(journal, number):
         empty_fields.append('Номер журнала')
     elif not re.search('([0-9]+)|([CXVI])', number):
         empty_fields.append('Номер журнала (цифра)')
-    return empty_fields
-
-
-def check_collection(biblio_cname, biblio_place, edit):
-    empty_fields = []
-    if not biblio_cname:
-        empty_fields.append('Название сборника')
-    if not biblio_place:
-        empty_fields.append('Место издания сборника')
-    if not edit:
-        empty_fields.append('Издательство сборника')
     return empty_fields
 
 
@@ -283,7 +258,7 @@ def id_maker(name, fname, title, biblio_year):
 
 
 def xml_former_book(biblio_name, biblio_title, biblio_sub, biblio_year,
-        biblio_place, edit):
+        biblio_place):
     xml = HEAD_BOOK.replace('Вставить имя автора романа', biblio_name)
     xml = xml.replace('Вставить название романа', biblio_title)
     if biblio_sub:
@@ -291,7 +266,6 @@ def xml_former_book(biblio_name, biblio_title, biblio_sub, biblio_year,
     else:
         xml = xml.replace('\n        <title type="sub">Вставить субтитл</title>', '')
     xml = xml.replace('Вставить город публикации', biblio_place)
-    xml = xml.replace('Вставить название издательства (Например: Государственное издательство "Художественная литература")', edit)
     xml = xml.replace('(вставить год публикации)', biblio_year)
     return xml
 
@@ -303,32 +277,10 @@ def xml_former_journal(biblio_name, biblio_title, biblio_sub, biblio_year,
     if biblio_sub:
         xml = xml.replace('Вставить субтитл', biblio_sub)
     else:
-        xml = xml.replace('\n        <title type="sub">Вставить субтитл</title>', '')
+        xml = xml.replace('\n       <title type="sub">Вставить субтитл</title>', '')
     xml = xml.replace('Вставить название журнала', journal)
     xml = xml.replace('Вставить номер журнала', number)
-    xml = xml.replace('(вставить год и месяц (YEAR', biblio_year)
-    if selection_month:
-        xml = xml.replace('ММ))', selection_month)
-    else:
-        xml = xml.replace('ММ))', '')
-    return xml
-
-
-def xml_former_collect(biblio_name, biblio_title, biblio_sub, biblio_year,
-        biblio_cname, biblio_place, edit):
-    xml = HEAD_COLLECT.replace('Вставить имя автора романа', biblio_name)
-    xml = xml.replace('Вставить название романа', biblio_title)
-    if biblio_sub:
-        xml = xml.replace('Вставить субтитл', biblio_sub)
-    else:
-        xml = xml.replace('\n        <title type="sub">Вставить субтитл</title>', '')
-    xml = xml.replace('Вставить город публикации сборника', biblio_place)
-    xml = xml.replace('Вставить название издательства (Например: Государственное издательство "Художественная литература")', edit)
-    xml = xml.replace('(вставить год и месяц (YEAR', biblio_year)
-    if selection_month:
-        xml = xml.replace('ММ))', selection_month)
-    else:
-        xml = xml.replace('ММ))', '')
+    xml = xml.replace('(вставить год и месяц (YEAR))', biblio_year)
     return xml
 
 
@@ -398,12 +350,16 @@ def text_process(input_filename):
             return text
     
 
-def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
-            biblio_title, biblio_sub, biblio_year, biblio_place, edit,
-            journal, number, biblio_cname, year_creation, input_filename,
-            current_year, current_month, current_day):
+def xml_former(id, title, subtitle, name, fname, pname, markup_name, biblio_name,
+            biblio_title, biblio_sub, biblio_year, biblio_place, journal,
+            number, year_creation, input_filename, current_year, current_month,
+            current_day):
     head1 = HEAD1.replace('Вставить_идентификатор', id)
     head1 = head1.replace('Вписать название романа', title)
+    if subtitle:
+        head1 = head1.replace('Вписать подзаголовок', subtitle)
+    else:
+        head1 = head1.replace('\n    <title type="sub">Вписать подзаголовок</title>', '')
     head1 = head1.replace('Фамилия автора', name)
     head1 = head1.replace('Имя автора', fname)
     if pname:
@@ -414,10 +370,8 @@ def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
     
     if selection == 'Журнал':
         head2 = xml_former_journal(biblio_name, biblio_title, biblio_sub, biblio_year, journal, number)
-    elif selection == 'Периодический сборник':
-        head2 = xml_former_collect(biblio_name, biblio_title, biblio_sub, biblio_year, biblio_cname, biblio_place, edit)
     else:
-        head2 = xml_former_book(biblio_name, biblio_title, biblio_sub, biblio_year, biblio_place, edit)
+        head2 = xml_former_book(biblio_name, biblio_title, biblio_sub, biblio_year, biblio_place)
         
     if selection_sex != 'неизвестно' or selection_narr != 'неизвестно':
         head4 = encoding_desc()
@@ -445,28 +399,25 @@ def xml_former(id, title, name, fname, pname, markup_name, biblio_name,
     return '{}{}{}{}{}{}{}{}'.format(head1, head2, HEAD3, head4, head5, head6, HEAD7, head8)
     
 
-def collect_data(name, fname, pname, title, markup_name, biblio_name,
-        biblio_title, biblio_sub, biblio_year, biblio_place, edit,
-        journal, number, biblio_cname, year_creation, input_filename, current_year,
-        current_month, current_day):
+def collect_data(name, fname, pname, title, subtitle, markup_name, biblio_name,
+        biblio_title, biblio_sub, biblio_year, biblio_place, journal, number,
+        year_creation, input_filename, current_year, current_month, current_day):
     
     empty_fields = check_main(name, fname, title, markup_name, biblio_name,
         biblio_title, biblio_year, input_filename)
     
     if selection == "Журнал":
         empty_fields.extend(check_journal(journal, number))
-    elif selection == "Периодический сборник":
-        empty_fields.extend(check_collection(biblio_cname, biblio_place, edit))
     else:
-        empty_fields.extend(check_book(biblio_place, edit))
+        empty_fields.extend(check_book(biblio_place))
     
     if empty_fields:
         errors_display('Ошибки разметки', '\n\nВы не заполнили следующие обязательные поля: \n\n' + ',\n'.join(empty_fields))
     else:
         id = id_maker(name, fname, title, biblio_year)
-        xml = xml_former(id, title, name, fname, pname, markup_name,
+        xml = xml_former(id, title, subtitle, name, fname, pname, markup_name,
             biblio_name, biblio_title, biblio_sub, biblio_year, biblio_place,
-            edit, journal, number, biblio_cname, year_creation, input_filename,
+            journal, number, year_creation, input_filename,
             current_year, current_month, current_day)
     
     with open('{}.xml'.format(id), "w", encoding='utf-8') as output_file:
@@ -484,7 +435,7 @@ def main():
     
     root = tk.Tk()
     root.title('Разметка романа')
-    canvas = tk.Canvas(root, width=1100, height=800, bg='#ADD8E6') # настройки холста
+    canvas = tk.Canvas(root, width=1100, height=750, bg='#ADD8E6') # настройки холста
     canvas.create_text(150, 40, text='Введите ниже информацию о романе.\nПоля со звездочками обязательны.\nВ остальных случаях, если неизвестно,\nможно оставить пустым', fill='white') # где и какой текст
     
     label_name = tk.Label(root, text='*Фамилия автора')
@@ -511,60 +462,61 @@ def main():
     entry_title = tk.Entry(root) 
     entry_title.place(x=150, y=170) 
     
+    label_subtitle = tk.Label(root, text='Подзаголовок')
+    label_subtitle.place(x=10, y=200)
+    
+    entry_subtitle = tk.Entry(root) 
+    entry_subtitle.place(x=150, y=200) 
+    
     label_markup = tk.Label(root, text='*Ваше имя')
-    label_markup.place(x=10, y=200)
+    label_markup.place(x=10, y=230)
     
     entry_markup = tk.Entry(root) 
-    entry_markup.place(x=150, y=200) 
+    entry_markup.place(x=150, y=230) 
     
     label_type = tk.Label(root, text = "*Тип публикации")
-    label_type.place(x=10, y=230)
+    label_type.place(x=10, y=260)
     
     selection = tk.StringVar(root)
     selection.set(PUBL_TYPE[0])
     
     opt = tk.OptionMenu(root, selection, *PUBL_TYPE, command=change_type)
-    opt.place(x=150, y=230)
+    opt.place(x=150, y=260)
     
-    canvas.create_text(130, 300, text='Вводите информацию ниже \nкак в печатном источнике.\nЭто библиографическое описание', fill='white') 
+    canvas.create_text(130, 330, text='Вводите информацию ниже \nкак в печатном источнике.\nЭто библиографическое описание', fill='white') 
     
     label_name_biblio = tk.Label(root, text='*Автор')
-    label_name_biblio.place(x=10, y=330)
+    label_name_biblio.place(x=10, y=360)
     
     entry_name_biblio = tk.Entry(root)
-    entry_name_biblio.place(x=150, y=330)
+    entry_name_biblio.place(x=150, y=360)
     
     label_title_biblio = tk.Label(root, text='*Название')
-    label_title_biblio.place(x=10, y=360)
+    label_title_biblio.place(x=10, y=390)
     
     entry_title_biblio = tk.Entry(root) 
-    entry_title_biblio.place(x=150, y=360) 
+    entry_title_biblio.place(x=150, y=390) 
     
     label_subtitle_biblio = tk.Label(root, text='Подзаголовок')
-    label_subtitle_biblio.place(x=10, y=390)
+    label_subtitle_biblio.place(x=10, y=420)
     
     entry_subtitle_biblio = tk.Entry(root) 
-    entry_subtitle_biblio.place(x=150, y=390) 
+    entry_subtitle_biblio.place(x=150, y=420) 
     
-    label_year_biblio = tk.Label(root, text='*Год')
-    label_year_biblio.place(x=10, y=420)
+    label_year_biblio = tk.Label(root, text='*Год публикации')
+    label_year_biblio.place(x=10, y=450)
     
     entry_year_biblio = tk.Entry(root) 
-    entry_year_biblio.place(x=150, y=420) 
+    entry_year_biblio.place(x=150, y=450) 
     
-    canvas.create_text(90, 460, text='Для книги и сборника', fill='white') 
+    canvas.create_text(90, 490, text='Для отдельной книги', fill='white') 
     
     label_place_biblio = tk.Label(root, text='Город')
-    label_place_biblio.place(x=10, y=480)
+    label_place_biblio.place(x=10, y=510)
     
     entry_place_biblio = tk.Entry(root) 
-    entry_place_biblio.place(x=150, y=480) 
+    entry_place_biblio.place(x=150, y=510) 
     
-    label_edit_biblio = tk.Label(root, text='Издательство')
-    label_edit_biblio.place(x=10, y=510)
-    
-    entry_edit_biblio = tk.Entry(root) 
-    entry_edit_biblio.place(x=150, y=510) 
     
     canvas.create_text(55, 550, text='Для журнала', fill='white') 
     
@@ -580,17 +532,12 @@ def main():
     entry_number_biblio = tk.Entry(root) 
     entry_number_biblio.place(x=150, y=600) 
     
-    label_cname_biblio = tk.Label(root, text='Название сборника')
-    label_cname_biblio.place(x=10, y=650)
-    
-    entry_cname_biblio = tk.Entry(root) 
-    entry_cname_biblio.place(x=160, y=650) 
     
     label_year_creation = tk.Label(root, text='Год создания')
-    label_year_creation.place(x=10, y=690)
+    label_year_creation.place(x=10, y=670)
     
     entry_year_creation = tk.Entry(root) 
-    entry_year_creation.place(x=150, y=690) 
+    entry_year_creation.place(x=150, y=670) 
     
     label_text_box = tk.Label(root, text='Введите имя файла, из которого \
 нужно взять текст романа. \nФайл должен быть в формате .txt и лежать \
@@ -600,19 +547,6 @@ def main():
     
     entry_input = tk.Entry(root) 
     entry_input.place(x=500, y=110) 
-    
-    # text_box = tk.Text()
-    # text_box.place(x=400, y=40) 
-    
-    
-    label_type = tk.Label(root, text = "Месяц (для журнала и сборника)")
-    label_type.place(x=400, y=270)
-    
-    selection_month = tk.StringVar(root)
-    selection_month.set(MONTHS[0])
-    
-    opt_month = tk.OptionMenu(root, selection_month, *MONTHS, command=change_month)
-    opt_month.place(x=650, y=270)
     
     
     label_sex = tk.Label(root, text = "Пол автора")
@@ -642,12 +576,12 @@ def main():
     
     btn_calc = tk.Button(root, text='Нажмите сюда, когда все \nполя будут заполнены')
     btn_calc.bind('<Button-1>', lambda event: collect_data(entry_name.get().strip(),
-        entry_fname.get().strip(), entry_pname.get().strip(), entry_title.get().strip(),
+        entry_fname.get().strip(), entry_pname.get().strip(),
+        entry_title.get().strip(), entry_subtitle.get().strip(),
         entry_markup.get().strip(), entry_name_biblio.get().strip(),
         entry_title_biblio.get().strip(), entry_subtitle_biblio.get().strip(),
         entry_year_biblio.get().strip(), entry_place_biblio.get().strip(),
-        entry_edit_biblio.get().strip(), entry_journal_biblio.get().strip(),
-        entry_number_biblio.get().strip(), entry_cname_biblio.get().strip(),
+        entry_journal_biblio.get().strip(), entry_number_biblio.get().strip(),
         entry_year_creation.get().strip(), entry_input.get().strip(),
         current_datetime.year, current_datetime.month, current_datetime.day)) # получаем значение 
     btn_calc.place(x=800, y=550)
