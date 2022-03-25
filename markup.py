@@ -146,6 +146,8 @@ HEAD8 = '''
 </TEI>
 '''
 
+CYR = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ "
+
 def months_former(d):
     d = str(d)
     if len(d) < 2:
@@ -241,17 +243,22 @@ def errors_display(title, message):
 
 
 def id_maker(name, fname, title, biblio_year):
-    symbols = ("абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ",
-        (*list('abvgdee'), 'zh', *list('zijklmnoprstuf'), 'kh', 'z', 'ch', 'sh', 'sh', '',
-        'y', '', 'e', 'yu','ya', *list('ABVGDEE'), 'ZH', 
-        *list('ZIJKLMNOPRSTUF'), 'KH', 'Z', 'CH', 'SH', 'SH', *list('_Y_E'), 'YU', 'YA', ' '))
+    symbols = (CYR, (*list('abvgdee'), 'zh', *list('zijklmnoprstuf'),
+    'kh', 'z', 'ch', 'sh', 'sh', '', 'y', '', 'e', 'yu','ya',
+    *list('ABVGDEE'), 'ZH', *list('ZIJKLMNOPRSTUF'), 'KH', 'Z', 'CH',
+    'SH', 'SH', *list('_Y_E'), 'YU', 'YA', ' '))
     
+    cyr_title = ''
+    for sym in title:
+        if sym in CYR:
+            cyr_title += sym
+            
     coding_dict = {source: dest for source, dest in zip(*symbols)}
     translate = lambda x: ''.join([coding_dict[i] for i in x])
     
     name = translate(name.lower())
     fname = translate(fname.lower()[0])
-    title = translate(title.lower())
+    title = translate(cyr_title.lower())
     title = title.replace(' ', '_')
     id = '{}_{}_{}_{}'.format(name, fname, title, biblio_year)
     return id
