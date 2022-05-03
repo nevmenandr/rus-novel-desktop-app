@@ -146,7 +146,7 @@ HEAD8 = '''
 </TEI>
 '''
 
-CYR = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ "
+CYR = "-абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ "
 
 def months_former(d):
     d = str(d)
@@ -243,7 +243,7 @@ def errors_display(title, message):
 
 
 def id_maker(name, fname, title, biblio_year):
-    symbols = (CYR, (*list('abvgdee'), 'zh', *list('zijklmnoprstuf'),
+    symbols = (CYR, (*list('-abvgdee'), 'zh', *list('zijklmnoprstuf'),
     'kh', 'z', 'ch', 'sh', 'sh', '', 'y', '', 'e', 'yu','ya',
     *list('ABVGDEE'), 'ZH', *list('ZIJKLMNOPRSTUF'), 'KH', 'Z', 'CH',
     'SH', 'SH', *list('_Y_E'), 'YU', 'YA', ' '))
