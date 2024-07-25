@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: rus-novel-desktop-app
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Boris
+    family-names: Orekhov
+    name-particle: Boris Orekhov
+    email: nevmenandr@gmail.com
+    affiliation: HSE University
+    orcid: 'https://orcid.org/0000-0002-9099-0436'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.12814190
+repository-code: 'https://github.com/nevmenandr/rus-novel-desktop-app'
+abstract: >-
+  Десктопное оконное приложение для создания размеченных
+  файлов корпуса русского романа.
+keywords:
+  - TEI
+  - Digital Humanities
+  - Russian literature
+license: GPL-3.0
+commit: 8890a0af1f5175a68de55eb986245946f6353640
+version: '1.0'
+date-released: '2022-05-03'
