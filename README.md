@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12814191.svg)](https://doi.org/10.5281/zenodo.12814191)
+
 # rus-novel-desktop-app
 
 Десктопное оконное приложение для создания размеченных файлов корпуса русского романа.
